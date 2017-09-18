@@ -114,7 +114,7 @@ var fetchFromPoloniex = function(callback){
 			var data = {
 				exchange: AppConfig.exchanges.poloniex.name,
 				url: AppConfig.exchanges.poloniex.orgUrl,
-				price: result.poloniex.DASH_BTC
+				price: result.poloniex.DASH_BTC*btcPrice
 			};
 			callback(null, data);
 		}
@@ -282,7 +282,7 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromKraken);
 				callstack.push(fetchFromBittrex);
 				callstack.push(fetchFromBitfinex);
-				callstack.push(fetchFromHitbtc);
+				//callstack.push(fetchFromHitbtc);
 				callstack.push(fetchFromBithumb);
 				callstack.push(fetchFromLivecoin);
 				callstack.push(fetchFromExmo);
