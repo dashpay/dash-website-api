@@ -114,6 +114,7 @@ var fetchFromPoloniex = function(callback){
 			var data = {
 				exchange: AppConfig.exchanges.poloniex.name,
 				url: AppConfig.exchanges.poloniex.orgUrl,
+				price: result.poloniex.DASH_BTC
 			};
 			callback(null, data);
 		}
@@ -286,7 +287,8 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromLivecoin);
 				callstack.push(fetchFromExmo);
 				callstack.push(fetchFromYobit);
-				callstack.push(fetchFromCcex);
+				callstack.push(fetchFromPoloniex);
+				//callstack.push(fetchFromCcex);
 				Async.parallel(callstack, function(err, result){
 					Cache.storeExchangeData(result);
 					callback(err,result);
