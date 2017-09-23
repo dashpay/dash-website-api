@@ -91,7 +91,7 @@ global.cacheConnection = Cache.connect();
 
 var server = app.listen(AppConfig.port, function () {
 
-	var host = server.address().address;
+	var host = process.env.BIND_HOST || server.address().address;
 	var port = server.address().port;
 	console.log('dash.org api server listening at http://%s:%s', host, port);
 });
