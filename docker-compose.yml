@@ -1,0 +1,15 @@
+version: '2'
+services:
+  app:
+    build: .
+    restart: always
+    links:
+      - memcached
+    environment:
+      - BIND_HOST=0.0.0.0  # b/c docker
+      - MEMCACHED_HOST=memcached
+    ports:
+      - 127.0.0.1:9090:9090
+  memcached:
+    image: memcached:alpine
+    restart: always
