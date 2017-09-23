@@ -95,7 +95,7 @@ var config = {
     chain: {
       insight: {
         name: 'Insight',
-        url: 'https://insight.dash.siampm.com/api/blocks',
+        url: 'https://insight.dashevo.org/insight-api-dash/blocks',
         maxBlocks: 10
       }
     },
