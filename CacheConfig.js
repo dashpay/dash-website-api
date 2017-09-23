@@ -1,7 +1,10 @@
 
+var memcachedHost = process.env.MEMCACHED_HOST || 'localhost';
+var memcachedPort = process.env.MEMCACHED_PORT || '11211';
+
 var cacheConfig = {
 
-	endpoint: 'localhost:11211',
+	endpoint: memcachedHost + ':' + memcachedPort,
 
 	exchange: {
 		key: 'dashapi_exchange',
