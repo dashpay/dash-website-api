@@ -239,6 +239,21 @@ var fetchFromCcex= function(callback){
 	});
 };
 
+var fetchFromCexio= function(callback){
+	log.debug('Fetching exchange data from ' + AppConfig.exchanges.cexio.name + ' at ' + AppConfig.exchanges.cexio.url);
+	fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.url, function(err, result){
+		if ( err ){
+			callback(err);
+		}else{
+			var data = {
+				exchange: AppConfig.exchanges.cexio.name,
+				url: AppConfig.exchanges.cexio.orgUrl,
+				price: result.lprice,
+			};
+			callback(null, data);
+		}
+	});
+};
 var fetchFromBithumb= function(callback){
 	fetchExchangeData(AppConfig.exchanges.yahoofinance.name, AppConfig.exchanges.yahoofinance.url, function(err, result){
 		if ( err ){
@@ -289,6 +304,7 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromYobit);
 				callstack.push(fetchFromPoloniex);
 				//callstack.push(fetchFromCcex);
+				callstack.push(fetchFromCexio);
 				Async.parallel(callstack, function(err, result){
 					Cache.storeExchangeData(result);
 					callback(err,result);

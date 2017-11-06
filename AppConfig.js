@@ -24,7 +24,9 @@ var config = {
       kraken: {
         name: 'Kraken',
         orgUrl: 'https://www.kraken.com/',
-        url: 'https://api.kraken.com/0/public/Ticker?pair=DASHUSD'
+        url: 'https://api.kraken.com/0/public/Ticker?pair=DASHUSD',
+        urlEur: 'https://api.kraken.com/0/public/Ticker?pair=DASHEUR'
+        urlBTC: 'https://api.kraken.com/0/public/Ticker?pair=DASHXBT'
       },
       poloniex: {
         name: 'Poloniex',
@@ -34,17 +36,20 @@ var config = {
       bittrex: {
         name: 'Bittrex',
         orgUrl: 'https://bittrex.com/',
-        url: 'https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-dash'
+        url: 'https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-dash',
+        urlEth: 'https://bittrex.com/api/v1.1/public/getmarketsummary?market=ETH-dash'
       },
       bitfinex: {
         name: 'Bitfinex',
         orgUrl: 'https://www.bitfinex.com/',
         url: 'https://api.bitfinex.com/v1/pubticker/dshusd'
+        urlBTC: 'https://api.bitfinex.com/v1/pubticker/dshbtc'
       },
       hitbtc: {
         name: 'Hitbtc',
         orgUrl: 'https://hitbtc.com/',
         url: 'https://api.hitbtc.com/api/1/public/DASHUSD/ticker'
+        url: 'https://api.hitbtc.com/api/1/public/DASHBTC/ticker'
       },
       bithumb: {
         name: 'Bithumb',
@@ -54,7 +59,8 @@ var config = {
       livecoin: {
         name: 'Livecoin',
         orgUrl: 'https://www.livecoin.net',
-        url: 'https://api.livecoin.net/exchange/ticker?currencyPair=DASH/USD'
+        url: 'https://api.livecoin.net/exchange/ticker?currencyPair=DASH/USD',
+        urlBTC: 'https://api.livecoin.net/exchange/ticker?currencyPair=DASH/BTC',
       },
       exmo: {
         name: 'Exmo',
@@ -64,12 +70,22 @@ var config = {
       yobit: {
         name: 'Yobit',
         orgUrl: 'https://yobit.net/',
-        url: 'https://yobit.net/api/3/ticker/dash_usd'
+        url: 'https://yobit.net/api/3/ticker/dash_usd',
+        urlBTC: 'https://yobit.net/api/3/ticker/dash_btc',
+        urlRur: 'https://yobit.net/api/3/ticker/dash_rur'
       },
       ccex: {
         name: 'C-cex',
         orgUrl: 'https://c-cex.com/',
-        url: 'https://c-cex.com/t/dash-usd.json'
+        url: 'https://c-cex.com/t/dash-usd.json',
+        urlBTC: 'https://c-cex.com/t/dash-btc.json'
+      },
+      cexio: {
+        name: 'Cex.io',
+        orgUrl: 'https://cex.io/',
+        url: 'https://cex.io/api/last_price/DASH/USD',
+        urlBTC: 'https://cex.io/api/last_price/DASH/BTC',
+        urlEur: 'https://cex.io/api/last_price/DASH/EUR'
       },
       yahoofinance: {
         name: 'Yahoo',
