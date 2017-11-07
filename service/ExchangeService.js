@@ -298,7 +298,7 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromBittrex);
 				callstack.push(fetchFromBitfinex);
 				//callstack.push(fetchFromHitbtc);
-				callstack.push(fetchFromBithumb);
+				//callstack.push(fetchFromBithumb);
 				callstack.push(fetchFromLivecoin);
 				callstack.push(fetchFromExmo);
 				callstack.push(fetchFromYobit);
@@ -316,8 +316,7 @@ var fetchAll = function(callback){
 			}
 		}
 	});
-	
-	
+
 };
 
 module.exports = {

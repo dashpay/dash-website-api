@@ -25,7 +25,7 @@ var config = {
         name: 'Kraken',
         orgUrl: 'https://www.kraken.com/',
         url: 'https://api.kraken.com/0/public/Ticker?pair=DASHUSD',
-        urlEur: 'https://api.kraken.com/0/public/Ticker?pair=DASHEUR'
+        urlEur: 'https://api.kraken.com/0/public/Ticker?pair=DASHEUR',
         urlBTC: 'https://api.kraken.com/0/public/Ticker?pair=DASHXBT'
       },
       poloniex: {
@@ -42,13 +42,13 @@ var config = {
       bitfinex: {
         name: 'Bitfinex',
         orgUrl: 'https://www.bitfinex.com/',
-        url: 'https://api.bitfinex.com/v1/pubticker/dshusd'
+        url: 'https://api.bitfinex.com/v1/pubticker/dshusd',
         urlBTC: 'https://api.bitfinex.com/v1/pubticker/dshbtc'
       },
       hitbtc: {
         name: 'Hitbtc',
         orgUrl: 'https://hitbtc.com/',
-        url: 'https://api.hitbtc.com/api/1/public/DASHUSD/ticker'
+        url: 'https://api.hitbtc.com/api/1/public/DASHUSD/ticker',
         url: 'https://api.hitbtc.com/api/1/public/DASHBTC/ticker'
       },
       bithumb: {
