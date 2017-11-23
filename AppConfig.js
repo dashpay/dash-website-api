@@ -49,7 +49,7 @@ var config = {
         name: 'Hitbtc',
         orgUrl: 'https://hitbtc.com/',
         url: 'https://api.hitbtc.com/api/1/public/DASHUSD/ticker',
-        url: 'https://api.hitbtc.com/api/1/public/DASHBTC/ticker'
+        urlBTC: 'https://api.hitbtc.com/api/1/public/DASHBTC/ticker'
       },
       bithumb: {
         name: 'Bithumb',
