@@ -5,7 +5,7 @@ var cacheConfig = {
 
 	exchange: {
 		key: 'dashapi_exchange',
-		timeout_seconds: 10
+		timeout_seconds: 20
 	},
 
 	budgets: {

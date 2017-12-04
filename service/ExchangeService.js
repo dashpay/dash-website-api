@@ -14,12 +14,15 @@ var fetchExchangeData = function(exchange, url, callback){
 			try {
 				callback(null, JSON.parse(body));
 			}catch (e) {
-				return callback('ERROR parsing response from ' + exchange + '. Details: ' + e + '\nResponse::' + body);
+				log.debug('ERROR parsing response from ' + exchange + '. Details: ' + e + '\nResponse::' + body);
+				return callback(null, null);
 			}
 		}else if ( err ){
-			return callback('ERROR: fetching data from ' + exchange + ' (' + url + ') Details: ' + err + '. BODY=' + body, null);
+			log.debug('ERROR: fetching data from ' + exchange + ' (' + url + ') Details: ' + err + '. BODY=' + body, null);
+			return callback(null, null);
 		}else{
-			return callback('ERROR: unexpected response code (' + response.statusCode + ') from url=[' + url + '] Details: ' + body);
+			log.debug('ERROR: unexpected response code (' + response.statusCode + ') from url=[' + url + '] Details: ' + body);
+			return callback(null, null);
 		}
 	});
 };
@@ -29,6 +32,8 @@ var fetchFromCoinCap = function(callback){
 	fetchExchangeData(AppConfig.exchanges.coincap.name, AppConfig.exchanges.coincap.url, function(err, result){
 		if ( err ){
 			callback(err);
+		} else if (result === null) {
+			callback(null, null);
 		}else{
 			var data = {
 				exchange: AppConfig.exchanges.coincap.name,
@@ -48,6 +53,8 @@ var fetchFromCoinCapBtc = function(callback){
 	fetchExchangeData(AppConfig.exchanges.coincapbtc.name, AppConfig.exchanges.coincapbtc.url, function(err, result){
 		if ( err ){
 			callback(err);
+		} else if (result === null) {
+			callback(null, null);
 		}else{
 			btcPrice = result[0].price_usd;
 			var data ={
@@ -67,6 +74,8 @@ var fetchFromWorldCoinIndex = function(callback){
 	fetchExchangeData(AppConfig.exchanges.worldcoin.name, url, function(err, result){
 		if ( err ){
 			callback(err);
+		} else if (result === null) {
+			callback(null, null);
 		}else{
 			var dashResults = result.Markets.find(function (market) {
 				return market.Name === "Dash";
@@ -94,6 +103,8 @@ var fetchFromKraken = function(callback){
 	fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.url, function(err, result){
 		if ( err ){
 			callback(err);
+		} else if (result === null) {
+			callback(null, null);
 		}else{
 			data = {
 				exchange: AppConfig.exchanges.kraken.name,
@@ -104,6 +115,8 @@ var fetchFromKraken = function(callback){
 			fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlEur, function(err, result){
 				if ( err ){
 					callback(err);
+				}else if (result === null) {
+					callback(null, null);
 				}else{
 					data['price_eur'] = result.result.DASHEUR.c[0];
 					fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlBTC, function(err, result){
@@ -125,6 +138,8 @@ var fetchFromPoloniex = function(callback){
 	fetchExchangeData(AppConfig.exchanges.poloniex.name, AppConfig.exchanges.poloniex.url, function(err, result){
 		if ( err ){
 			callback(err);
+		} else if (result === null) {
+			callback(null, null);
 		}else{
 			var data = {
 				exchange: AppConfig.exchanges.poloniex.name,
@@ -142,6 +157,8 @@ var fetchFromBittrex= function(callback){
 	fetchExchangeData(AppConfig.exchanges.bittrex.name, AppConfig.exchanges.bittrex.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			data = {
 				exchange: AppConfig.exchanges.bittrex.name,
@@ -153,6 +170,8 @@ var fetchFromBittrex= function(callback){
 			fetchExchangeData(AppConfig.exchanges.bittrex.name, AppConfig.exchanges.bittrex.urlEth, function(err, result){
 				if ( err ){
 					callback(err);
+				}else if (result === null) {
+					callback(null, null);
 				}else{
 					data['price_eth'] = result.result[0].Last;
 					callback(null, data);
@@ -169,6 +188,8 @@ var fetchFromBitfinex = function(callback){
 	fetchExchangeData(AppConfig.exchanges.bitfinex.name, AppConfig.exchanges.bitfinex.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			data = {
 				exchange: AppConfig.exchanges.bitfinex.name,
@@ -180,6 +201,8 @@ var fetchFromBitfinex = function(callback){
 			fetchExchangeData(AppConfig.exchanges.bitfinex.name, AppConfig.exchanges.bitfinex.urlBTC, function(err, result){
 				if ( err ){
 					callback(err);
+				}else if (result === null) {
+					callback(null, null);
 				}else{
 					data['price_btc'] = result.last_price
 					callback(null, data);
@@ -196,6 +219,8 @@ var fetchFromHitbtc= function(callback){
 	fetchExchangeData(AppConfig.exchanges.hitbtc.name, AppConfig.exchanges.hitbtc.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			data = {
 				exchange: AppConfig.exchanges.hitbtc.name,
@@ -223,6 +248,8 @@ var fetchFromLivecoin= function(callback){
 	fetchExchangeData(AppConfig.exchanges.livecoin.name, AppConfig.exchanges.livecoin.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			data = {
 				exchange: AppConfig.exchanges.livecoin.name,
@@ -234,6 +261,8 @@ var fetchFromLivecoin= function(callback){
 			fetchExchangeData(AppConfig.exchanges.livecoin.name, AppConfig.exchanges.livecoin.urlBTC, function(err, result){
 				if ( err ){
 					callback(err);
+				}else if (result === null) {
+					callback(null, null);
 				}else{
 					data['price_btc'] = result.last;
 					callback(null, data);
@@ -248,6 +277,8 @@ var fetchFromExmo= function(callback){
 	fetchExchangeData(AppConfig.exchanges.exmo.name, AppConfig.exchanges.exmo.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			var data = {
 				exchange: AppConfig.exchanges.exmo.name,
@@ -267,6 +298,8 @@ var fetchFromYobit= function(callback){
 	fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			data = {
 				exchange: AppConfig.exchanges.yobit.name,
@@ -277,11 +310,15 @@ var fetchFromYobit= function(callback){
 			fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.urlBTC, function(err, result){
 				if ( err ){
 					callback(err);
+				}else if (result === null) {
+					callback(null, null);
 				}else{
 					data['price_btc'] = result.dash_btc.last;
 					fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.urlRur, function(err, result){
 						if ( err ){
 							callback(err);
+						}else if (result === null) {
+							callback(null, null);
 						}else{
 							data['price_rur'] = result.dash_rur.last;
 							callback(null, data);
@@ -299,6 +336,8 @@ var fetchFromCcex= function(callback){
 	fetchExchangeData(AppConfig.exchanges.ccex.name, AppConfig.exchanges.ccex.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			data = {
 				exchange: AppConfig.exchanges.ccex.name,
@@ -309,6 +348,8 @@ var fetchFromCcex= function(callback){
 			fetchExchangeData(AppConfig.exchanges.ccex.name, AppConfig.exchanges.ccex.urlBTC, function(err, result){
 				if ( err ){
 					callback(err);
+				}else if (result === null) {
+					callback(null, null);
 				}else{
 					data['price_btc'] = result.ticker.lastprice;
 					callback(null, data);
@@ -325,6 +366,8 @@ var fetchFromCexio= function(callback){
 	fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			data = {
 				exchange: AppConfig.exchanges.cexio.name,
@@ -334,11 +377,15 @@ var fetchFromCexio= function(callback){
 			fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.urlEur, function(err, result){
 				if ( err ){
 					callback(err);
+				}else if (result === null) {
+					callback(null, null);
 				}else{
 					data['price_eur'] = result.lprice;
 					fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.urlBTC, function(err, result){
 						if ( err ){
 							callback(err);
+						}else if (result === null) {
+							callback(null, null);
 						}else{
 							data['price_btc'] = result.lprice;
 							callback(null, data);
@@ -356,11 +403,15 @@ var fetchFromBithumb= function(callback){
 	fetchExchangeData(AppConfig.exchanges.yahoofinance.name, AppConfig.exchanges.yahoofinance.url, function(err, result){
 		if ( err ){
 			callback(err);
+		}else if (result === null) {
+			callback(null, null);
 		}else{
 			krwUsd = result.query.results.rate.Rate;
 			fetchExchangeData(AppConfig.exchanges.bithumb.name, AppConfig.exchanges.bithumb.url, function(err, result){
 				if ( err ){
 					callback(err);
+				}else if (result === null) {
+					callback(null, null);
 				}else{
 					var data = {
 						exchange: AppConfig.exchanges.bithumb.name,
@@ -395,13 +446,13 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromKraken);
 				callstack.push(fetchFromBittrex);
 				callstack.push(fetchFromBitfinex);
-				//callstack.push(fetchFromHitbtc);
+				callstack.push(fetchFromHitbtc);
 				//callstack.push(fetchFromBithumb);
 				callstack.push(fetchFromLivecoin);
 				callstack.push(fetchFromExmo);
 				callstack.push(fetchFromYobit);
 				callstack.push(fetchFromPoloniex);
-				//callstack.push(fetchFromCcex);
+				callstack.push(fetchFromCcex);
 				callstack.push(fetchFromCexio);
 				Async.parallel(callstack, function(err, result){
 					Cache.storeExchangeData(result);
