@@ -10,6 +10,7 @@ var log = new Logger(AppConfig.logLevel);
 
 var fetchExchangeData = function(exchange, url, callback){
 	request.get(url, function (err, response, body) {
+		console.log(body);
 		if ( !err && response.statusCode == 200 ){
 			try {
 				callback(null, JSON.parse(body));
@@ -109,7 +110,7 @@ var fetchFromKraken = function(callback){
 			data = {
 				exchange: AppConfig.exchanges.kraken.name,
 				url: AppConfig.exchanges.kraken.orgUrl,
-				price_usd: result.result.DASHUSD.c[0]
+				price: result.result.DASHUSD.c[0]
 			};
 			data.volume = result.result.DASHUSD.v[1]*data.price;
 			fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlEur, function(err, result){
@@ -194,7 +195,7 @@ var fetchFromBitfinex = function(callback){
 			data = {
 				exchange: AppConfig.exchanges.bitfinex.name,
 				url: AppConfig.exchanges.bitfinex.orgUrl,
-				price_usd: result.last_price
+				price: result.last_price
 			};
 			data.volume = result.volume*data.price;
 			//fetching BTC price
@@ -225,7 +226,7 @@ var fetchFromHitbtc= function(callback){
 			data = {
 				exchange: AppConfig.exchanges.hitbtc.name,
 				url: AppConfig.exchanges.hitbtc.orgUrl,
-				price_usd: result.last,
+				price: result.last,
 			};
 			data.volume = result.volume*data.price;
 			//Fetch BTC
@@ -254,7 +255,7 @@ var fetchFromLivecoin= function(callback){
 			data = {
 				exchange: AppConfig.exchanges.livecoin.name,
 				url: AppConfig.exchanges.livecoin.orgUrl,
-				price_usd: result.last
+				price: result.last
 			};
 			data.volume = result.volume*data.price;
 			// Fetching BTC price
@@ -283,7 +284,7 @@ var fetchFromExmo= function(callback){
 			var data = {
 				exchange: AppConfig.exchanges.exmo.name,
 				url: AppConfig.exchanges.exmo.orgUrl,
-				price_usd: result.DASH_USD.last_trade,
+				price: result.DASH_USD.last_trade,
 				price_btc: result.DASH_BTC.last_trade,
 				volume: result.DASH_USD.vol_curr,
 			};
@@ -304,7 +305,7 @@ var fetchFromYobit= function(callback){
 			data = {
 				exchange: AppConfig.exchanges.yobit.name,
 				url: AppConfig.exchanges.yobit.orgUrl,
-				price_usd: result.dash_usd.last
+				price: result.dash_usd.last
 			};
 			data.volume = result.dash_usd.vol*data.price;
 			fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.urlBTC, function(err, result){
@@ -342,7 +343,7 @@ var fetchFromCcex= function(callback){
 			data = {
 				exchange: AppConfig.exchanges.ccex.name,
 				url: AppConfig.exchanges.ccex.orgUrl,
-				price_usd: result.ticker.lastprice,
+				price: result.ticker.lastprice,
 			};
 			// Fetching BTC price
 			fetchExchangeData(AppConfig.exchanges.ccex.name, AppConfig.exchanges.ccex.urlBTC, function(err, result){
@@ -372,7 +373,7 @@ var fetchFromCexio= function(callback){
 			data = {
 				exchange: AppConfig.exchanges.cexio.name,
 				url: AppConfig.exchanges.cexio.orgUrl,
-				price_usd: result.lprice,
+				price: result.lprice,
 			};
 			fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.urlEur, function(err, result){
 				if ( err ){
@@ -416,7 +417,7 @@ var fetchFromBithumb= function(callback){
 					var data = {
 						exchange: AppConfig.exchanges.bithumb.name,
 						url: AppConfig.exchanges.bithumb.orgUrl,
-						price_usd: result.data.closing_price*krwUsd,
+						price: result.data.closing_price*krwUsd,
 					};
 					data.volume = result.data.volume_1day*data.price;
 					callback(null, data);
@@ -453,7 +454,7 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromYobit);
 				callstack.push(fetchFromPoloniex);
 				callstack.push(fetchFromCcex);
-				callstack.push(fetchFromCexio);
+				//callstack.push(fetchFromCexio);
 				Async.parallel(callstack, function(err, result){
 					Cache.storeExchangeData(result);
 					callback(err,result);
