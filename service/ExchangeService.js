@@ -429,6 +429,14 @@ var fetchFromBithumb= function(callback){
 
 };
 
+var addUsdPrice = function(arr){
+	arr.filter(function(obj) {
+		if(obj && obj.hasOwnProperty("price_btc") && !obj.hasOwnProperty("price")){
+			obj.price = obj["price_btc"]*btcPrice;
+		}
+	});
+};
+
 var fetchAll = function(callback){
 	var callstack = [];
 
@@ -447,15 +455,18 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromKraken);
 				callstack.push(fetchFromBittrex);
 				callstack.push(fetchFromBitfinex);
-				callstack.push(fetchFromHitbtc);
+				//callstack.push(fetchFromHitbtc);
 				//callstack.push(fetchFromBithumb);
-				callstack.push(fetchFromLivecoin);
-				callstack.push(fetchFromExmo);
-				callstack.push(fetchFromYobit);
+				//callstack.push(fetchFromLivecoin);
+				//callstack.push(fetchFromExmo);
+				//callstack.push(fetchFromYobit);
 				callstack.push(fetchFromPoloniex);
-				callstack.push(fetchFromCcex);
+				//callstack.push(fetchFromCcex);
 				//callstack.push(fetchFromCexio);
 				Async.parallel(callstack, function(err, result){
+					if (btcPrice){
+						addUsdPrice(result);
+					}
 					Cache.storeExchangeData(result);
 					callback(err,result);
 				});
