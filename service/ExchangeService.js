@@ -10,7 +10,6 @@ var log = new Logger(AppConfig.logLevel);
 
 var fetchExchangeData = function(exchange, url, callback){
 	request.get(url, function (err, response, body) {
-		console.log(body);
 		if ( !err && response.statusCode == 200 ){
 			try {
 				callback(null, JSON.parse(body));
@@ -436,6 +435,7 @@ var addUsdPrice = function(arr){
 		}
 		return obj != undefined;
 	});
+	
 	return updatedResult;
 };
 
@@ -448,9 +448,7 @@ var fetchAll = function(callback){
 		}else{
 			
 			if ( data === undefined ){
-
-				console.log('Latest exchange data not found in cache.');
-
+				log.debug('Latest exchange data not found in cache.');
 				callstack.push(fetchFromCoinCapBtc);
 				callstack.push(fetchFromWorldCoinIndex);
 				callstack.push(fetchFromCoinCap);
@@ -463,7 +461,8 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromExmo);
 				callstack.push(fetchFromYobit);
 				callstack.push(fetchFromPoloniex);
-				callstack.push(fetchFromCcex);callstack.push(fetchFromCexio);
+				callstack.push(fetchFromCcex);
+				callstack.push(fetchFromCexio);
 				Async.parallel(callstack, function(err, result){
 					var updatedPrice = btcPrice ? addUsdPrice(result) : result;
 					Cache.storeExchangeData(updatedPrice);
