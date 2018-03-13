@@ -10,19 +10,22 @@ var log = new Logger(AppConfig.logLevel);
 
 var fetchExchangeData = function(exchange, url, callback){
 	request.get(url, function (err, response, body) {
-		if ( !err && response.statusCode == 200 ){
+				if ( !err && response.statusCode == 200 ){
 			try {
 				callback(null, JSON.parse(body));
 			}catch (e) {
-				log.debug('ERROR parsing response from ' + exchange + '. Details: ' + e + '\nResponse::' + body);
-				return callback(null, null);
+				var parsingError = 'ERROR parsing response from ' + exchange + '. Details: ' + e + '\nResponse::' + body;
+				log.debug(parsingError);
+				return callback(new Error(parsingError), null);
 			}
 		}else if ( err ){
-			log.debug('ERROR: fetching data from ' + exchange + ' (' + url + ') Details: ' + err + '. BODY=' + body, null);
-			return callback(null, null);
+			var fetchinError = 'ERROR: fetching data from ' + exchange + ' (' + url + ') Details: ' + err + '. BODY=' + body;
+			log.debug(fetchinError,null);
+			return callback(new Error(fetchinError), null);
 		}else{
-			log.debug('ERROR: unexpected response code (' + response.statusCode + ') from url=[' + url + '] Details: ' + body);
-			return callback(null, null);
+			var unexpectedError = 'ERROR: unexpected response code (' + response.statusCode + ') from url=[' + url + '] Details: ' + body;
+			log.debug(unexpectedError);
+			return callback(new Error(unexpectedError), null);
 		}
 	});
 };
@@ -463,10 +466,10 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromPoloniex);
 				callstack.push(fetchFromCcex);
 				callstack.push(fetchFromCexio);
-				Async.parallel(callstack, function(err, result){
+				Async.parallel(Async.reflectAll(callstack), function(err, result){
 					var updatedPrice = btcPrice ? addUsdPrice(result) : result;
 					Cache.storeExchangeData(updatedPrice);
-					callback(err,updatedPrice);
+					callback(null,updatedPrice);
 				});
 
 			}else{
