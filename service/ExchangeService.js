@@ -7,25 +7,31 @@ var btcPrice   = null;
 var krwUsd     = null;
 var log = new Logger(AppConfig.logLevel);
 
-
+var handleError = function(message, exchange, errortype){
+	var errorObject = new Error();
+		errorObject.message = message;
+		errorObject.exchange = exchange;
+		errorObject.errorType = errortype;
+	return errorObject;
+}
 var fetchExchangeData = function(exchange, url, callback){
 	request.get(url, function (err, response, body) {
-				if ( !err && response.statusCode == 200 ){
+		if ( !err && response.statusCode == 200 ){
 			try {
 				callback(null, JSON.parse(body));
-			}catch (e) {
-				var parsingError = 'ERROR parsing response from ' + exchange + '. Details: ' + e + '\nResponse::' + body;
-				log.debug(parsingError);
-				return callback(new Error(parsingError), null);
+			}catch (e){
+				var parseError = 'ERROR parsing response from ';
+				log.debug(parseError + exchange + '. Details: ' + e + '\nResponse::' + body);
+				return callback(handleError(parseError, exchange, e), null);
 			}
 		}else if ( err ){
-			var fetchinError = 'ERROR: fetching data from ' + exchange + ' (' + url + ') Details: ' + err + '. BODY=' + body;
-			log.debug(fetchinError,null);
-			return callback(new Error(fetchinError), null);
+			var errorFetching = 'ERROR: fetching data from ';
+			log.debug(errorFetching + exchange + ' (' + url + ') Details: ' + err + '. BODY=' + body, null);
+			return callback(handleError(errorFetching, exchange, err), null);
 		}else{
-			var unexpectedError = 'ERROR: unexpected response code (' + response.statusCode + ') from url=[' + url + '] Details: ' + body;
-			log.debug(unexpectedError);
-			return callback(new Error(unexpectedError), null);
+			var unexpectedError = 'ERROR: unexpected response code ';
+			log.debug( unexpectedError + '(' + response.statusCode + ') from url=[' + url + '] Details: ' + body );
+			return callback(handleError( unexpectedError, url, response.statusCode), null);
 		}
 	});
 };
@@ -467,7 +473,16 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromCcex);
 				callstack.push(fetchFromCexio);
 				Async.parallel(Async.reflectAll(callstack), function(err, result){
-					var updatedPrice = btcPrice ? addUsdPrice(result) : result;
+					var resultArray = [];
+					//preventing unnecessary wrapper with "value" key
+					result.forEach(function(obj) {
+						if (obj && obj['value']){
+							resultArray.push(obj['value']);
+						} else {
+							resultArray.push(obj);
+						}
+					});
+					var updatedPrice = btcPrice ? addUsdPrice(resultArray) : resultArray;
 					Cache.storeExchangeData(updatedPrice);
 					callback(null,updatedPrice);
 				});
