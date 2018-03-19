@@ -7,7 +7,7 @@ var btcPrice   = null;
 var krwUsd     = null;
 var log = new Logger(AppConfig.logLevel);
 
-var handleError = function(message, exchange, errortype){
+var createErrorExtension = function(message, exchange, errortype){
 	var errorObject = new Error();
 		errorObject.message = message;
 		errorObject.exchange = exchange;
@@ -16,23 +16,25 @@ var handleError = function(message, exchange, errortype){
 }
 var fetchExchangeData = function(exchange, url, callback){
 	request.get(url, function (err, response, body) {
-		if ( !err && response.statusCode == 200 ){
-			try {
-				callback(null, JSON.parse(body));
-			}catch (e){
-				var parseError = 'ERROR parsing response from ';
-				log.debug(parseError + exchange + '. Details: ' + e + '\nResponse::' + body);
-				return callback(handleError(parseError, exchange, e), null);
-			}
-		}else if ( err ){
+		if ( err ){
 			var errorFetching = 'ERROR: fetching data from ';
 			log.debug(errorFetching + exchange + ' (' + url + ') Details: ' + err + '. BODY=' + body, null);
-			return callback(handleError(errorFetching, exchange, err), null);
-		}else{
+			return callback(createErrorExtension(errorFetching, exchange, err), null);
+		}
+		if (response.statusCode !== 200){
 			var unexpectedError = 'ERROR: unexpected response code ';
 			log.debug( unexpectedError + '(' + response.statusCode + ') from url=[' + url + '] Details: ' + body );
-			return callback(handleError( unexpectedError, url, response.statusCode), null);
+			return callback(createErrorExtension( unexpectedError, url, response.statusCode), null);
 		}
+		try {
+			var data = callback(null, JSON.parse(body));
+			return data;
+		}catch (e){
+			var parseError = 'ERROR parsing response from ';
+			log.debug(parseError + exchange + '. Details: ' + e + '\nResponse::' + body);
+			return callback(createErrorExtension(parseError, exchange, e), null);
+		}
+		return callback(null, data);
 	});
 };
 
