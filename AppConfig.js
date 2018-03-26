@@ -31,7 +31,7 @@ var config = {
       poloniex: {
         name: 'Poloniex',
         orgUrl: 'https://poloniex.com/',
-        url: 'http://dashpay.info/api/v0/prices'
+        url: 'https://poloniex.com/public?command=returnTicker'
       },
       bittrex: {
         name: 'Bittrex',

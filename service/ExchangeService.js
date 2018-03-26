@@ -19,22 +19,26 @@ var fetchExchangeData = function(exchange, url, callback){
 		if ( err ){
 			var errorFetching = 'ERROR: fetching data from ';
 			log.debug(errorFetching + exchange + ' (' + url + ') Details: ' + err + '. BODY=' + body, null);
-			return callback(createErrorExtension(errorFetching, exchange, err), null);
+			callback(createErrorExtension(errorFetching, exchange, err), null);
+			return;
 		}
 		if (response.statusCode !== 200){
 			var unexpectedError = 'ERROR: unexpected response code ';
 			log.debug( unexpectedError + '(' + response.statusCode + ') from url=[' + url + '] Details: ' + body );
-			return callback(createErrorExtension( unexpectedError, url, response.statusCode), null);
+			callback(createErrorExtension( unexpectedError, url, response.statusCode), null);
+			return;
 		}
+		var data;
 		try {
-			var data = callback(null, JSON.parse(body));
-			return data;
+			data = JSON.parse(body);
 		}catch (e){
 			var parseError = 'ERROR parsing response from ';
 			log.debug(parseError + exchange + '. Details: ' + e + '\nResponse::' + body);
-			return callback(createErrorExtension(parseError, exchange, e), null);
+			callback(createErrorExtension(parseError, exchange, e), null);
+			return;
 		}
-		return callback(null, data);
+		callback(null, data);
+		return
 	});
 };
 
@@ -43,19 +47,22 @@ var fetchFromCoinCap = function(callback){
 	fetchExchangeData(AppConfig.exchanges.coincap.name, AppConfig.exchanges.coincap.url, function(err, result){
 		if ( err ){
 			callback(err);
-		} else if (result === null) {
-			callback(null, null);
-		}else{
-			var data = {
-				exchange: AppConfig.exchanges.coincap.name,
-				url: AppConfig.exchanges.coincap.orgUrl,
-				price: result[0].price_usd.toString(),
-				volume: result[0]['24h_volume_usd'].toString(),
-				percent_change: result[0].percent_change_24h.toString(),
-				market_cap: result[0].market_cap_usd.toString()
-			};
-			callback(null, data);
+			return;
 		}
+		if (result === null) {
+			callback(null, null);
+			return
+		}
+		var data = {
+			exchange: AppConfig.exchanges.coincap.name,
+			url: AppConfig.exchanges.coincap.orgUrl,
+			price: parseFloat(result[0].price_usd),
+			volume: parseFloat(result[0]['24h_volume_usd']),
+			percent_change: parseFloat(result[0].percent_change_24h),
+			market_cap: parseFloat(result[0].market_cap_usd)
+		};
+		callback(null, data);
+		return;
 	});
 };
 
@@ -64,17 +71,20 @@ var fetchFromCoinCapBtc = function(callback){
 	fetchExchangeData(AppConfig.exchanges.coincapbtc.name, AppConfig.exchanges.coincapbtc.url, function(err, result){
 		if ( err ){
 			callback(err);
-		} else if (result === null) {
-			callback(null, null);
-		}else{
-			btcPrice = result[0].price_usd;
-			var data ={
-				exchange: AppConfig.exchanges.coincapbtc.name,
-				url: AppConfig.exchanges.coincapbtc.orgUrl,
-				btcPrice: result[0].price_usd.toString()
-			}
-			callback(null, data);
+			return;
 		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		btcPrice = parseFloat(result[0].price_usd);
+		var data ={
+			exchange: AppConfig.exchanges.coincapbtc.name,
+			url: AppConfig.exchanges.coincapbtc.orgUrl,
+			btcPrice: btcPrice
+		}
+		callback(null, data);
+		return;
 	});
 };
 
@@ -87,26 +97,28 @@ var fetchFromWorldCoinIndex = function(callback){
 	fetchExchangeData(AppConfig.exchanges.worldcoin.name, url, function(err, result){
 		if ( err ){
 			callback(err);
-		} else if (result === null) {
+			return;
+		} 
+		if (result === null) {
 			callback(null, null);
-		}else{
-			var dashResults = result.Markets.find(function (market) {
-				return market.Name === "Dash";
-			});
-			if ( dashResults ){
-				var data = {
-					exchange: AppConfig.exchanges.worldcoin.name,
-					url: AppConfig.exchanges.worldcoin.orgUrl,
-					price: dashResults.Price_usd.toString(),
-					volume: dashResults.Volume_24h.toString(),
-					percent_change: -1
-				};
-				callback(null, data);
-			}else{
-				callback('Unable to find the Dash Market data in the response from WorldCoinIndex. Endpoint is [' + url + ']');
-			}
-			
+			return;
 		}
+		var dashResults = result.Markets.find(function (market) {
+			return market.Name === "Dash";
+		});
+		if ( dashResults ){
+			var data = {
+				exchange: AppConfig.exchanges.worldcoin.name,
+				url: AppConfig.exchanges.worldcoin.orgUrl,
+				price: parseFloat(dashResults.Price_usd),
+				volume: parseFloat(dashResults.Volume_24h),
+				percent_change: -1
+			};
+			callback(null, data);
+			return;
+		}
+		callback('Unable to find the Dash Market data in the response from WorldCoinIndex. Endpoint is [' + url + ']');
+		return;
 	});
 };
 
@@ -116,33 +128,39 @@ var fetchFromKraken = function(callback){
 	fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.url, function(err, result){
 		if ( err ){
 			callback(err);
-		} else if (result === null) {
+			return;
+		}
+		if (result === null) {
 			callback(null, null);
-		}else{
-			data = {
-				exchange: AppConfig.exchanges.kraken.name,
-				url: AppConfig.exchanges.kraken.orgUrl,
-				price: result.result.DASHUSD.c[0].toString()
-			};
-			data.volume = (result.result.DASHUSD.v[1]*data.price).toString();
-			fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlEur, function(err, result){
+			return;
+		}
+		data = {
+			exchange: AppConfig.exchanges.kraken.name,
+			url: AppConfig.exchanges.kraken.orgUrl,
+			price: parseFloat(result.result.DASHUSD.c['0'])
+		};
+		data.volume = result.result.DASHUSD.v[1]*data.price;
+		fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlEur, function(err, result){
+			if ( err ){
+				callback(err);
+				return
+			}
+			if (result === null) {
+				callback(null, null);
+				return;
+			} else {
+				data['price_eur'] = parseFloat(result.result.DASHEUR.c[0]);
+				fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlBTC, function(err, result){
 				if ( err ){
 					callback(err);
-				}else if (result === null) {
-					callback(null, null);
-				}else{
-					data['price_eur'] = result.result.DASHEUR.c[0].toString();
-					fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlBTC, function(err, result){
-						if ( err ){
-							callback(err);
-						}else{
-							data['price_btc'] = result.result.DASHXBT.c[0].toString();
-							callback(null, data);
-						}
-					});
+					return;
 				}
-			});
-		}
+				data['price_btc'] = parseFloat(result.result.DASHXBT.c[0]);
+				callback(null, data);
+				return;
+				});
+			}
+		});
 	});
 };
 
@@ -151,16 +169,19 @@ var fetchFromPoloniex = function(callback){
 	fetchExchangeData(AppConfig.exchanges.poloniex.name, AppConfig.exchanges.poloniex.url, function(err, result){
 		if ( err ){
 			callback(err);
-		} else if (result === null) {
-			callback(null, null);
-		}else{
-			var data = {
-				exchange: AppConfig.exchanges.poloniex.name,
-				url: AppConfig.exchanges.poloniex.orgUrl,
-				price_btc: result.poloniex.DASH_BTC.toString()
-			};
-			callback(null, data);
+			return;
 		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		var data = {
+			exchange: AppConfig.exchanges.poloniex.name,
+			url: AppConfig.exchanges.poloniex.orgUrl,
+			price_btc: parseFloat(result.BTC_DASH.last)
+		};
+		callback(null, data);
+		return;
 	});
 };
 
@@ -170,27 +191,33 @@ var fetchFromBittrex= function(callback){
 	fetchExchangeData(AppConfig.exchanges.bittrex.name, AppConfig.exchanges.bittrex.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
-			callback(null, null);
-		}else{
-			data = {
-				exchange: AppConfig.exchanges.bittrex.name,
-				url: AppConfig.exchanges.bittrex.orgUrl,
-				price_btc: result.result[0].Last.toString()
-			};
-			data.volume = (result.result[0].Volume*data.price_btc).toString()
-			//fetching ETH price
-			fetchExchangeData(AppConfig.exchanges.bittrex.name, AppConfig.exchanges.bittrex.urlEth, function(err, result){
-				if ( err ){
-					callback(err);
-				}else if (result === null) {
-					callback(null, null);
-				}else{
-					data['price_eth'] = result.result[0].Last.toString();
-					callback(null, data);
-				}
-			});
+			return;
 		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		data = {
+			exchange: AppConfig.exchanges.bittrex.name,
+			url: AppConfig.exchanges.bittrex.orgUrl,
+			price_btc: parseFloat(result.result[0].Last)
+		};
+		data.volume = result.result[0].Volume*data.price_btc;
+		//fetching ETH price
+		fetchExchangeData(AppConfig.exchanges.bittrex.name, AppConfig.exchanges.bittrex.urlEth, function(err, result){
+			if ( err ){
+				callback(err);
+				return;
+			}
+			if (result === null) {
+				callback(null, null);
+				return;
+			} else {
+				data['price_eth'] = parseFloat(result.result[0].Last);
+				callback(null, data);
+				return;
+			}
+		});
 	});
 
 };
@@ -201,27 +228,32 @@ var fetchFromBitfinex = function(callback){
 	fetchExchangeData(AppConfig.exchanges.bitfinex.name, AppConfig.exchanges.bitfinex.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
-			callback(null, null);
-		}else{
-			data = {
-				exchange: AppConfig.exchanges.bitfinex.name,
-				url: AppConfig.exchanges.bitfinex.orgUrl,
-				price: result.last_price.toString()
-			};
-			data.volume = (result.volume*data.price).toString();
-			//fetching BTC price
-			fetchExchangeData(AppConfig.exchanges.bitfinex.name, AppConfig.exchanges.bitfinex.urlBTC, function(err, result){
-				if ( err ){
-					callback(err);
-				}else if (result === null) {
-					callback(null, null);
-				}else{
-					data['price_btc'] = result.last_price.toString()
-					callback(null, data);
-				}
-			});
+			return;
 		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		data = {
+			exchange: AppConfig.exchanges.bitfinex.name,
+			url: AppConfig.exchanges.bitfinex.orgUrl,
+			price: parseFloat(result.last_price)
+		};
+		data.volume = result.volume*data.price;
+		//fetching BTC price
+		fetchExchangeData(AppConfig.exchanges.bitfinex.name, AppConfig.exchanges.bitfinex.urlBTC, function(err, result){
+			if ( err ){
+				callback(err);
+				return;
+			}
+			if (result === null) {
+				callback(null, null);
+				return;
+			}
+			data['price_btc'] = parseFloat(result.last_price);
+			callback(null, data);
+			return;
+		});
 	});
 
 };
@@ -232,25 +264,28 @@ var fetchFromHitbtc= function(callback){
 	fetchExchangeData(AppConfig.exchanges.hitbtc.name, AppConfig.exchanges.hitbtc.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
-			callback(null, null);
-		}else{
-			data = {
-				exchange: AppConfig.exchanges.hitbtc.name,
-				url: AppConfig.exchanges.hitbtc.orgUrl,
-				price: result.last.toString(),
-			};
-			data.volume = (result.volume*data.price).toString();
-			//Fetch BTC
-			fetchExchangeData(AppConfig.exchanges.hitbtc.name, AppConfig.exchanges.hitbtc.urlBTC, function(err, result){
-				if ( err ){
-					callback(err);
-				}else{
-					data['price_btc'] = result.last.toString();
-					callback(null, data);
-				}
-			});
+			return;
 		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		data = {
+			exchange: AppConfig.exchanges.hitbtc.name,
+			url: AppConfig.exchanges.hitbtc.orgUrl,
+			price: parseFloat(result.last)
+		};
+		data.volume = result.volume*data.price;
+		//Fetch BTC
+		fetchExchangeData(AppConfig.exchanges.hitbtc.name, AppConfig.exchanges.hitbtc.urlBTC, function(err, result){
+			if ( err ){
+				callback(err);
+				return;
+			}
+			data['price_btc'] = parseFloat(result.last);
+			callback(null, data);
+			return;
+		});
 	});
 
 };
@@ -261,27 +296,31 @@ var fetchFromLivecoin= function(callback){
 	fetchExchangeData(AppConfig.exchanges.livecoin.name, AppConfig.exchanges.livecoin.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
-			callback(null, null);
-		}else{
-			data = {
-				exchange: AppConfig.exchanges.livecoin.name,
-				url: AppConfig.exchanges.livecoin.orgUrl,
-				price: result.last.toString()
-			};
-			data.volume = (result.volume*data.price).toString();
-			// Fetching BTC price
-			fetchExchangeData(AppConfig.exchanges.livecoin.name, AppConfig.exchanges.livecoin.urlBTC, function(err, result){
-				if ( err ){
-					callback(err);
-				}else if (result === null) {
-					callback(null, null);
-				}else{
-					data['price_btc'] = result.last.toString();
-					callback(null, data);
-				}
-			});
+			return
 		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		data = {
+			exchange: AppConfig.exchanges.livecoin.name,
+			url: AppConfig.exchanges.livecoin.orgUrl,
+			price: parseFloat(result.last)
+		};
+		data.volume = result.volume*data.price
+		// Fetching BTC price
+		fetchExchangeData(AppConfig.exchanges.livecoin.name, AppConfig.exchanges.livecoin.urlBTC, function(err, result){
+			if ( err ){
+				callback(err);
+			}
+			if (result === null) {
+				callback(null, null);
+				return;
+			}
+			data['price_btc'] = parseFloat(result.last);
+			callback(null, data);
+			return;
+		});
 	});
 };
 
@@ -290,18 +329,21 @@ var fetchFromExmo= function(callback){
 	fetchExchangeData(AppConfig.exchanges.exmo.name, AppConfig.exchanges.exmo.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
-			callback(null, null);
-		}else{
-			var data = {
-				exchange: AppConfig.exchanges.exmo.name,
-				url: AppConfig.exchanges.exmo.orgUrl,
-				price: result.DASH_USD.last_trade.toString(),
-				price_btc: result.DASH_BTC.last_trade.toString(),
-				volume: result.DASH_USD.vol_curr.toString(),
-			};
-			callback(null, data);
+			return
 		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		var data = {
+			exchange: AppConfig.exchanges.exmo.name,
+			url: AppConfig.exchanges.exmo.orgUrl,
+			price: parseFloat(result.DASH_USD.last_trade),
+			price_btc: parseFloat(result.DASH_BTC.last_trade),
+			volume: parseFloat(result.DASH_USD.vol_curr)
+		};
+		callback(null, data);
+		return;
 	});
 };
 
@@ -311,35 +353,43 @@ var fetchFromYobit= function(callback){
 	fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
+			return;
+		}
+		if (result === null) {
 			callback(null, null);
-		}else{
-			data = {
-				exchange: AppConfig.exchanges.yobit.name,
-				url: AppConfig.exchanges.yobit.orgUrl,
-				price: result.dash_usd.last.toString()
-			};
-			data.volume = (result.dash_usd.vol*data.price).toString();
-			fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.urlBTC, function(err, result){
+			return;
+		}
+		data = {
+			exchange: AppConfig.exchanges.yobit.name,
+			url: AppConfig.exchanges.yobit.orgUrl,
+			price: parseFloat(result.dash_usd.last)
+		};
+		data.volume = result.dash_usd.vol*data.price
+		fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.urlBTC, function(err, result){
+			if ( err ){
+				callback(err);
+				return;
+			}
+			if (result === null) {
+				callback(null, null);
+				return;
+			}
+			data['price_btc'] = parseFloat(result.dash_btc.last);
+			fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.urlRur, function(err, result){
 				if ( err ){
 					callback(err);
-				}else if (result === null) {
-					callback(null, null);
-				}else{
-					data['price_btc'] = result.dash_btc.last.toString();
-					fetchExchangeData(AppConfig.exchanges.yobit.name, AppConfig.exchanges.yobit.urlRur, function(err, result){
-						if ( err ){
-							callback(err);
-						}else if (result === null) {
-							callback(null, null);
-						}else{
-							data['price_rur'] = result.dash_rur.last.toString();
-							callback(null, data);
-						}
-					});
+					return;
 				}
+				if (result === null) {
+					callback(null, null);
+					return;
+				}
+				data['price_rur'] = parseFloat(result.dash_rur.last);
+				callback(null, data);
+				return;
 			});
-		}
+		});
+
 	});
 };
 
@@ -349,26 +399,31 @@ var fetchFromCcex= function(callback){
 	fetchExchangeData(AppConfig.exchanges.ccex.name, AppConfig.exchanges.ccex.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
-			callback(null, null);
-		}else{
-			data = {
-				exchange: AppConfig.exchanges.ccex.name,
-				url: AppConfig.exchanges.ccex.orgUrl,
-				price: result.ticker.lastprice.toString(),
-			};
-			// Fetching BTC price
-			fetchExchangeData(AppConfig.exchanges.ccex.name, AppConfig.exchanges.ccex.urlBTC, function(err, result){
-				if ( err ){
-					callback(err);
-				}else if (result === null) {
-					callback(null, null);
-				}else{
-					data['price_btc'] = result.ticker.lastprice.toString();
-					callback(null, data);
-				}
-			});
+			return;
 		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		data = {
+			exchange: AppConfig.exchanges.ccex.name,
+			url: AppConfig.exchanges.ccex.orgUrl,
+			price: parseFloat(result.ticker.lastprice)
+		};
+		// Fetching BTC price
+		fetchExchangeData(AppConfig.exchanges.ccex.name, AppConfig.exchanges.ccex.urlBTC, function(err, result){
+			if ( err ){
+				callback(err);
+				return;
+			}
+			if (result === null) {
+				callback(null, null);
+				return;
+			}
+			data['price_btc'] = parseFloat(result.ticker.lastprice);
+			callback(null, data);
+			return;
+		});
 	});
 
 };
@@ -379,34 +434,42 @@ var fetchFromCexio= function(callback){
 	fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
+			return;
+		}
+		if (result === null) {
 			callback(null, null);
-		}else{
-			data = {
-				exchange: AppConfig.exchanges.cexio.name,
-				url: AppConfig.exchanges.cexio.orgUrl,
-				price: result.lprice.toString(),
-			};
-			fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.urlEur, function(err, result){
+			return;
+		}
+		data = {
+			exchange: AppConfig.exchanges.cexio.name,
+			url: AppConfig.exchanges.cexio.orgUrl,
+			price: parseFloat(result.lprice)
+		};
+		fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.urlEur, function(err, result){
+			if ( err ){
+				callback(err);
+				return;
+			}
+			if (result === null) {
+				callback(null, null);
+				return;
+			}
+			data['price_eur'] = parseFloat(result.lprice);
+			fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.urlBTC, function(err, result){
 				if ( err ){
 					callback(err);
-				}else if (result === null) {
-					callback(null, null);
-				}else{
-					data['price_eur'] = result.lprice.toString();
-					fetchExchangeData(AppConfig.exchanges.cexio.name, AppConfig.exchanges.cexio.urlBTC, function(err, result){
-						if ( err ){
-							callback(err);
-						}else if (result === null) {
-							callback(null, null);
-						}else{
-							data['price_btc'] = result.lprice.toString();
-							callback(null, data);
-						}
-					});
+					return;
 				}
+				if (result === null) {
+					callback(null, null);
+					return;
+				}
+				data['price_btc'] = parseFloat(result.lprice);
+				callback(null, data);
+				return;
 			});
-		}
+		});
+
 	});
 
 
@@ -416,26 +479,31 @@ var fetchFromBithumb= function(callback){
 	fetchExchangeData(AppConfig.exchanges.yahoofinance.name, AppConfig.exchanges.yahoofinance.url, function(err, result){
 		if ( err ){
 			callback(err);
-		}else if (result === null) {
-			callback(null, null);
-		}else{
-			krwUsd = result.query.results.rate.Rate.toString();
-			fetchExchangeData(AppConfig.exchanges.bithumb.name, AppConfig.exchanges.bithumb.url, function(err, result){
-				if ( err ){
-					callback(err);
-				}else if (result === null) {
-					callback(null, null);
-				}else{
-					var data = {
-						exchange: AppConfig.exchanges.bithumb.name,
-						url: AppConfig.exchanges.bithumb.orgUrl,
-						price: result.data.closing_price*krwUsd.toString(),
-					};
-					data.volume = (result.data.volume_1day*data.price).toString();
-					callback(null, data);
-				}
-			});
+			return;
 		}
+		if (result === null || result.query.results === null) {
+			callback(null, null);
+			return;
+		}
+		krwUsd = parseFloat(result.query.results.rate.Rate);
+		fetchExchangeData(AppConfig.exchanges.bithumb.name, AppConfig.exchanges.bithumb.url, function(err, result){
+			if ( err ){
+				callback(err);
+				return;
+			}
+			if (result === null) {
+				callback(null, null);
+				return;
+			}
+			var data = {
+				exchange: AppConfig.exchanges.bithumb.name,
+				url: AppConfig.exchanges.bithumb.orgUrl,
+				price: result.data.closing_price*krwUsd
+			};
+			data.volume = result.data.volume_1day*data.price;
+			callback(null, data);
+			return;
+		});
 	});
 
 
@@ -444,11 +512,10 @@ var fetchFromBithumb= function(callback){
 var addUsdPrice = function(arr){
 	updatedResult = arr.filter(function(obj) {
 		if(obj && obj.hasOwnProperty("price_btc") && !obj.hasOwnProperty("price")){
-			obj.price = (obj["price_btc"]*btcPrice).toString();
+			obj.price = obj["price_btc"]*btcPrice;
 		}
 		return obj != undefined;
 	});
-	
 	return updatedResult;
 };
 
@@ -459,7 +526,6 @@ var fetchAll = function(callback){
 		if ( err ){
 			callback(err);
 		}else{
-			
 			if ( data === undefined ){
 				log.debug('Latest exchange data not found in cache.');
 				callstack.push(fetchFromCoinCapBtc);
@@ -490,7 +556,6 @@ var fetchAll = function(callback){
 					Cache.storeExchangeData(updatedPrice);
 					callback(null,updatedPrice);
 				});
-
 			}else{
 				log.debug('Using exchange data found in cache.');
 				callback(null,data);
