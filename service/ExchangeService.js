@@ -148,9 +148,9 @@ var fetchFromKraken = function(callback){
 			if (result === null) {
 				callback(null, null);
 				return;
-			} else {
-				data['price_eur'] = parseFloat(result.result.DASHEUR.c[0]);
-				fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlBTC, function(err, result){
+			}
+			data['price_eur'] = parseFloat(result.result.DASHEUR.c[0]);
+			fetchExchangeData(AppConfig.exchanges.kraken.name, AppConfig.exchanges.kraken.urlBTC, function(err, result){
 				if ( err ){
 					callback(err);
 					return;
@@ -158,8 +158,7 @@ var fetchFromKraken = function(callback){
 				data['price_btc'] = parseFloat(result.result.DASHXBT.c[0]);
 				callback(null, data);
 				return;
-				});
-			}
+			});
 		});
 	});
 };
@@ -212,11 +211,10 @@ var fetchFromBittrex= function(callback){
 			if (result === null) {
 				callback(null, null);
 				return;
-			} else {
-				data['price_eth'] = parseFloat(result.result[0].Last);
-				callback(null, data);
-				return;
 			}
+			data['price_eth'] = parseFloat(result.result[0].Last);
+			callback(null, data);
+			return;
 		});
 	});
 
@@ -509,9 +507,12 @@ var fetchFromBithumb= function(callback){
 
 };
 
-var addUsdPrice = function(arr){
+var addUsdPrice = function addUsdPrice(arr, btcPrice){
 	updatedResult = arr.filter(function(obj) {
-		if(obj && obj.hasOwnProperty("price_btc") && !obj.hasOwnProperty("price")){
+		if (!obj){
+			return false;
+		}
+		if(obj.hasOwnProperty("price_btc") && !obj.hasOwnProperty("price")){
 			obj.price = obj["price_btc"]*btcPrice;
 		}
 		return obj != undefined;
