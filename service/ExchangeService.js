@@ -3,7 +3,6 @@ var Async      = require('async');
 var AppConfig  = require('../AppConfig');
 var Cache      = require('./CacheRepository');
 var Logger     = require('log');
-var btcPrice   = null;
 var krwUsd     = null;
 var log = new Logger(AppConfig.logLevel);
 
@@ -544,16 +543,20 @@ var fetchAll = function(callback){
 				callstack.push(fetchFromCcex);
 				callstack.push(fetchFromCexio);
 				Async.parallel(Async.reflectAll(callstack), function(err, result){
-					var resultArray = [];
+					var resultArray = [],
+						btcPrice = null;
 					//preventing unnecessary wrapper with "value" key
 					result.forEach(function(obj) {
 						if (obj && obj['value']){
 							resultArray.push(obj['value']);
+							if (obj['value'].btcPrice){
+								btcPrice = obj['value'].btcPrice;
+							}
 						} else {
 							resultArray.push(obj);
 						}
 					});
-					var updatedPrice = btcPrice ? addUsdPrice(resultArray) : resultArray;
+					var updatedPrice = btcPrice ? addUsdPrice(resultArray, btcPrice) : resultArray;
 					Cache.storeExchangeData(updatedPrice);
 					callback(null,updatedPrice);
 				});
