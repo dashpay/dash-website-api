@@ -520,53 +520,54 @@ var addUsdPrice = function addUsdPrice(arr, btcPrice){
 };
 
 var fetchAll = function(callback){
-	var callstack = [];
-
-	Cache.getExchangeData(function(err, data){
-		if ( err ){
+	Cache.getExchangeData(function(err, data) {
+		if (err) {
 			callback(err);
-		}else{
-			if ( data === undefined ){
-				log.debug('Latest exchange data not found in cache.');
-				callstack.push(fetchFromCoinCapBtc);
-				callstack.push(fetchFromWorldCoinIndex);
-				callstack.push(fetchFromCoinCap);
-				callstack.push(fetchFromKraken);
-				callstack.push(fetchFromBittrex);
-				callstack.push(fetchFromBitfinex);
-				callstack.push(fetchFromHitbtc);
-				callstack.push(fetchFromBithumb);
-				callstack.push(fetchFromLivecoin);
-				callstack.push(fetchFromExmo);
-				callstack.push(fetchFromYobit);
-				callstack.push(fetchFromPoloniex);
-				callstack.push(fetchFromCcex);
-				callstack.push(fetchFromCexio);
-				Async.parallel(Async.reflectAll(callstack), function(err, result){
-					var resultArray = [],
-						btcPrice = null;
-					//preventing unnecessary wrapper with "value" key
-					result.forEach(function(obj) {
-						if (obj && obj['value']){
-							resultArray.push(obj['value']);
-							if (obj['value'].btcPrice){
-								btcPrice = obj['value'].btcPrice;
-							}
-						} else {
-							resultArray.push(obj);
-						}
-					});
-					var updatedPrice = btcPrice ? addUsdPrice(resultArray, btcPrice) : resultArray;
-					Cache.storeExchangeData(updatedPrice);
-					callback(null,updatedPrice);
-				});
-			}else{
-				log.debug('Using exchange data found in cache.');
-				callback(null,data);
-			}
+			return;
 		}
-	});
 
+	if (data !== undefined) {
+		log.debug('Using exchange data found in cache.');
+		callback(null, data);
+		return;
+	}
+
+	log.debug('Latest exchange data not found in cache.');
+	const callstack = {
+		fetchFromCoinCapBtc,
+		fetchFromWorldCoinIndex,
+		fetchFromCoinCap,
+		fetchFromKraken,
+		fetchFromBittrex,
+		fetchFromBitfinex,
+		fetchFromHitbtc,
+		fetchFromBithumb,
+		fetchFromLivecoin,
+		fetchFromExmo,
+		fetchFromYobit,
+		fetchFromPoloniex,
+		fetchFromCcex,
+		fetchFromCexio,
+	};
+
+		Async.parallel(Async.reflectAll(callstack), (err, result)=> {
+			// preventing unnecessary wrapper with "value" key
+			let resultArray = Object.values(result).map((obj)=> {
+				if (obj && obj['value']){
+					return obj['value'];
+				}
+				return obj;
+			});
+
+			const { fetchFromCoinCapBtc: coinCapBtc } = result;
+			if (coinCapBtc.value && coinCapBtc.value.btcPrice) {
+				resultArray = addUsdPrice(resultArray, coinCapBtc.value.btcPrice);
+			}
+
+			Cache.storeExchangeData(resultArray);
+			callback(null, resultArray);
+		});
+	});
 };
 
 module.exports = {
