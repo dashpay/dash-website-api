@@ -87,10 +87,10 @@ var config = {
         urlBTC: 'https://cex.io/api/last_price/DASH/BTC',
         urlEur: 'https://cex.io/api/last_price/DASH/EUR'
       },
-      yahoofinance: {
-        name: 'Yahoo',
-        orgUrl: 'https://www.yahoo.com/',
-        url: 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.xchange%20where%20pair%20in%20(%22KRWUSD%22)&format=json&env=store://datatables.org/alltableswithkeys&callback='
+      CurrencyConverterApi: {
+        name: 'CurrencyConverterApi',
+        orgUrl: 'https://free.currencyconverterapi.com/',
+        url: 'https://free.currencyconverterapi.com/api/v5/convert?q=KRW_USD&compact=y'
       }
     },
     budgets: {

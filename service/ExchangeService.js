@@ -473,16 +473,16 @@ var fetchFromCexio= function(callback){
 };
 
 var fetchFromBithumb= function(callback){
-	fetchExchangeData(AppConfig.exchanges.yahoofinance.name, AppConfig.exchanges.yahoofinance.url, function(err, result){
+	fetchExchangeData(AppConfig.exchanges.CurrencyConverterApi.name, AppConfig.exchanges.CurrencyConverterApi.url, function(err, result){
 		if ( err ){
 			callback(err);
 			return;
 		}
-		if (result === null || result.query.results === null) {
+		if (result === null || result.KRW_USD.val === null) {
 			callback(null, null);
 			return;
 		}
-		krwUsd = parseFloat(result.query.results.rate.Rate);
+		krwUsd = parseFloat(result.KRW_USD.val);
 		fetchExchangeData(AppConfig.exchanges.bithumb.name, AppConfig.exchanges.bithumb.url, function(err, result){
 			if ( err ){
 				callback(err);
