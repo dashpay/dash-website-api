@@ -87,6 +87,21 @@ var config = {
         urlBTC: 'https://cex.io/api/last_price/DASH/BTC',
         urlEur: 'https://cex.io/api/last_price/DASH/EUR'
       },
+      binance: {
+        name: 'Binance',
+        orgUrl: 'https://www.binance.com/',
+        url: 'https://api.binance.com/api/v3/ticker/price'
+      },
+      coinroom: {
+        name: 'Coinroom',
+        orgUrl: 'https://coinroom.com/',
+        url: 'https://coinroom.com/api/ticker/DASH/USD'
+      },
+      huobi: {
+        name: 'Huobi',
+        orgUrl: 'https://www.huobi.pro/',
+        url: 'https://api.hadax.com/market/trade?symbol=dashbtc'
+      },
       CurrencyConverterApi: {
         name: 'CurrencyConverterApi',
         orgUrl: 'https://free.currencyconverterapi.com/',

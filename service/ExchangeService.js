@@ -502,10 +502,72 @@ var fetchFromBithumb= function(callback){
 			return;
 		});
 	});
-
-
 };
 
+var fetchFromBinance= function(callback){
+	var data = {};
+	log.debug('Fetching exchange data from ' + AppConfig.exchanges.binance.name + ' at ' + AppConfig.exchanges.binance.url);
+	fetchExchangeData(AppConfig.exchanges.binance.name, AppConfig.exchanges.binance.url, function(err, result){
+		if ( err ){
+			callback(err);
+			return;
+		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		var dashBtcTicker = result.find(obj => obj.symbol === "DASHBTC");
+		data = {
+			exchange: AppConfig.exchanges.binance.name,
+			url: AppConfig.exchanges.binance.orgUrl,
+			price_btc: parseFloat(dashBtcTicker.price)
+		};
+		callback(null, data);
+		return;
+	});
+};
+
+var fetchFromCoinroom = function(callback){
+	log.debug('Fetching exchange data from ' + AppConfig.exchanges.coinroom.name + ' at ' + AppConfig.exchanges.coinroom.url);
+	fetchExchangeData(AppConfig.exchanges.coinroom.name, AppConfig.exchanges.coinroom.url, function(err, result){
+		if ( err ){
+			callback(err);
+			return;
+		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		var data = {
+			exchange: AppConfig.exchanges.coinroom.name,
+			url: AppConfig.exchanges.coinroom.orgUrl,
+			price: parseFloat(result.last)
+		};
+		callback(null, data);
+		return;
+	});
+};
+
+var fetchFromHuobi = function(callback){
+	log.debug('Fetching exchange data from ' + AppConfig.exchanges.huobi.name + ' at ' + AppConfig.exchanges.huobi.url);
+	fetchExchangeData(AppConfig.exchanges.huobi.name, AppConfig.exchanges.huobi.url, function(err, result){
+		if ( err ){
+			callback(err);
+			return;
+		}
+		if (result === null) {
+			callback(null, null);
+			return;
+		}
+		var data = {
+			exchange: AppConfig.exchanges.huobi.name,
+			url: AppConfig.exchanges.huobi.orgUrl,
+			price_btc: parseFloat(result.tick.data[0].price)
+		};
+		callback(null, data);
+		return;
+	});
+};
 var addUsdPrice = function addUsdPrice(arr, btcPrice){
 	updatedResult = arr.filter(function(obj) {
 		if (!obj){
@@ -548,6 +610,9 @@ var fetchAll = function(callback){
 		fetchFromPoloniex,
 		fetchFromCcex,
 		fetchFromCexio,
+		fetchFromBinance,
+		fetchFromCoinroom,
+		fetchFromHuobi
 	};
 
 		Async.parallel(Async.reflectAll(callstack), (err, result)=> {
@@ -583,5 +648,8 @@ module.exports = {
 	fetchFromExmo: fetchFromExmo,
 	fetchFromYobit: fetchFromYobit,
 	fetchFromCcex: fetchFromCcex,
+	fetchFromBinance: fetchFromBinance,
+	fetchFromCoinroom: fetchFromCoinroom,
+	fetchFromHuobi: fetchFromHuobi,
 	fetchAll: fetchAll
 }
