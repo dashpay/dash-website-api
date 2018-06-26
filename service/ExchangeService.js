@@ -517,6 +517,10 @@ var fetchFromBinance= function(callback){
 			return;
 		}
 		var dashBtcTicker = result.find(obj => obj.symbol === "DASHBTC");
+		if (dashBtcTicker === undefined ) {
+			callback(createErrorExtension( 'ERROR: unexpected output format', AppConfig.exchanges.binance.url, 'undefined'), null);
+			return;
+		}
 		data = {
 			exchange: AppConfig.exchanges.binance.name,
 			url: AppConfig.exchanges.binance.orgUrl,
