@@ -492,6 +492,10 @@ var fetchFromBithumb= function(callback){
 				callback(null, null);
 				return;
 			}
+			if (!result.data){
+				callback(createErrorExtension( 'ERROR: unexpected output format', AppConfig.exchanges.bithumb.url, 'undefined'), null);
+				return;
+			}
 			var data = {
 				exchange: AppConfig.exchanges.bithumb.name,
 				url: AppConfig.exchanges.bithumb.orgUrl,
