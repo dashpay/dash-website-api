@@ -109,9 +109,9 @@ var config = {
       }
     },
     budgets: {
-      dashwhale: {
-        name: 'DashWhale',
-        url: 'https://www.dashwhale.org/api/v1/budget'
+      dashCentral: {
+        name: 'DashCentral',
+        url: 'https://www.dashcentral.org/api/v1/budget'
       }
     },
     masternodes: {

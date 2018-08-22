@@ -33,8 +33,8 @@ var fetchDashBudgetsData = function(callback){
 
 			if ( data === undefined ){
 				log.debug('Budgets not found in cache.');
-				log.debug('Fetching budgets from ' + AppConfig.budgets.dashwhale.name + ' at ' + AppConfig.budgets.dashwhale.url);
-				fetchBudgetsData(AppConfig.budgets.dashwhale.name, AppConfig.budgets.dashwhale.url,function(err, results){
+				log.debug('Fetching budgets from ' + AppConfig.budgets.dashCentral.name + ' at ' + AppConfig.budgets.dashCentral.url);
+				fetchBudgetsData(AppConfig.budgets.dashCentral.name, AppConfig.budgets.dashCentral.url,function(err, results){
 					if ( !err ){
 						Cache.storeBudgetsData(results);
 					}
