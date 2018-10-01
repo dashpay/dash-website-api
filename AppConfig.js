@@ -100,7 +100,7 @@ var config = {
       huobi: {
         name: 'Huobi',
         orgUrl: 'https://www.huobi.pro/',
-        url: 'https://api.hadax.com/market/trade?symbol=dashbtc'
+        url: 'https://api.huobi.pro/market/trade?symbol=dashbtc'
       },
       CurrencyConverterApi: {
         name: 'CurrencyConverterApi',
